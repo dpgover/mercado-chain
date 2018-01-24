@@ -4,33 +4,98 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    
+
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
     <title>Mercado Chain</title>
 </head>
 <body>
+    <header class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <a class="navbar-brand" href="#">Mercado Chain</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav bd-navbar-nav flex-row">
+                <li class="nav-item"><a class="nav-link" href="#" data-toggle="modal" data-target="#sellItem">Sell</a></li>
+            </ul>
+            <ul class="navbar-nav flex-row ml-md-auto d-none d-md-flex">
+                <li class="nav-item nav-link"><span id="accountBalance"></span></li>
+                <li class="nav-item nav-link"><span id="account"></span> <i class="fas fa-user"></i></li>
+            </ul>
+        </div>
+    </header>
+
     <div class="container">
-        <header class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-            <a class="navbar-brand" href="#">Mercado Chain</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav bd-navbar-nav flex-row">
-                    <li class="nav-item"><a class="nav-link" href="/">Vender</a></li>
-                </ul>
-                <ul class="navbar-nav flex-row ml-md-auto d-none d-md-flex">
-                    <li class="nav-item nav-link"><span id="accountBalance"></span></li>
-                    <li class="nav-item nav-link"><span id="account"></span> <i class="fas fa-user"></i></li>
-                </ul>
+        <div id="itemList" class="card-deck mb-3 text-center">
+            <div id="sellableItem" class="card mb-4 box-shadow"></div>
+        </div>
+
+        <footer class="pt-4 my-md-5 pt-md-5 border-top">
+            <div class="row">
+                <div class="col-12 col-md">
+                    <small class="d-block mb-3 text-muted">&copy; 2018</small>
+                </div>
             </div>
-        </header>
-        <h1>Hello, world!</h1>
+        </footer>
     </div>
-    
+
+    <div id="itemTemplate" style="display: none;">
+        <div class="card-header">
+            <h2 id="itemName" class="my-0 font-weight-normal"></h2>
+        </div>
+        <div class="card-body">
+            <h3 id="itemPrice" class="card-title pricing-card-title">ETH $0</h3>
+            <ul class="list-unstyled mt-3 mb-4">
+                <li id="itemDescription"></li>
+                <li><strong>Sold by</strong> <span id="itemSeller"></span></li>
+            </ul>
+            <button type="button" class="btn btn-lg btn-block btn-outline-primary">Buy</button>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="sellItem" tabindex="-1" role="dialog" aria-labelledby="sellItem" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Sell Item</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form>
+                    <div class="modal-body">
+                            <div class="form-group">
+                                <label for="name">Item</label>
+                                <input type="text" class="form-control" id="name" name="name" placeholder="iPhone X">
+                            </div>
+                            <div class="form-group">
+                                <label for="price">Price (ETH)</label>
+                                <input type="number" class="form-control" id="price" name="price" placeholder="1" pattern="[0-9]+([\.,][0-9]+)?" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <textarea type="text" class="form-control vresize" id="description" name="description" placeholder="Very little use..." maxlength="255"></textarea>
+                            </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Sell</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
     <script src="./app.js"></script>
 </body>
 </html>
