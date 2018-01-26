@@ -142,10 +142,6 @@ class App {
             toBlock: 'latest',
           },
         ).watch((error, event) => {
-
-          console.log(error);
-          console.log(event);
-
           this.reloadItems();
           this.addEventToFeed(event);
         });
