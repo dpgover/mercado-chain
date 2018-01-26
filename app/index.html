@@ -5,10 +5,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
     <title>Mercado Chain</title>
 </head>
 <body>
@@ -24,41 +20,54 @@
                 <li class="nav-item"><a class="nav-link" href="#" data-toggle="modal" data-target="#sellItem">Sell</a></li>
             </ul>
             <ul class="navbar-nav flex-row ml-md-auto d-none d-md-flex">
-                <li class="nav-item nav-link"><span id="accountBalance"></span></li>
-                <li class="nav-item nav-link"><span id="account"></span> <i class="fas fa-user"></i></li>
+                <li class="nav-item nav-link">ETH <span id="accountBalance"></span></li>
+                <li class="nav-item nav-link"><span id="account" class=""></span> <i class="fas fa-user"></i></li>
             </ul>
         </div>
     </header>
 
     <div class="container">
-        <div id="itemList" class="card-deck mb-3 text-center">
-            <div id="sellableItem" class="card mb-4 box-shadow"></div>
-        </div>
+        <div id="itemList" class="row mb-3 text-center"></div>
 
-        <footer class="pt-4 my-md-5 pt-md-5 border-top">
-            <div class="row">
-                <div class="col-12 col-md">
+        <footer class="pt-4 my-md-5 pt-md-5">
+            <div class="row border-top">
+                <div class="col-12 col-md text-center mt-4">
                     <small class="d-block mb-3 text-muted">&copy; 2018</small>
                 </div>
             </div>
         </footer>
+
+        <div class="fixed-bottom text-right mr-5">
+            <button type="button" id="eventsList" class="btn btn-primary btn-events" data-toggle="popover">Events</button>
+        </div>
     </div>
 
     <div id="itemTemplate" style="display: none;">
-        <div class="card-header">
-            <h2 id="itemName" class="my-0 font-weight-normal"></h2>
-        </div>
-        <div class="card-body">
-            <h3 id="itemPrice" class="card-title pricing-card-title">ETH $0</h3>
-            <ul class="list-unstyled mt-3 mb-4">
-                <li id="itemDescription"></li>
-                <li><strong>Sold by</strong> <span id="itemSeller"></span></li>
-            </ul>
-            <button type="button" class="btn btn-lg btn-block btn-outline-primary">Buy</button>
+        <div class="col-xs-12 col-sm-4">
+            <div class="card mb-4 box-shadow sellable-item">
+                <div class="card-header">
+                    <h2 class="my-0 font-weight-normal item-name"></h2>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title pricing-card-title">ETH <span class="item-price"></span></h3>
+                    <ul class="list-unstyled mt-3 mb-4">
+                        <li class="item-description"></li>
+                        <li><strong>Sold by</strong> <span class="item-seller"></span></li>
+                    </ul>
+                    <button type="button" class="btn btn-lg btn-block btn-outline-primary">Buy</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Modal -->
+    <div id="eventsFeed" style="display: none;">
+        <div class="events-feed-title">Events</div>
+        <div class="events-feed-items">
+            <ul class="list-group"></ul>
+        </div>
+    </div>
+
+    <!-- Sell Modal -->
     <div class="modal fade" id="sellItem" tabindex="-1" role="dialog" aria-labelledby="sellItem" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -68,20 +77,20 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form>
+                <form id="sellItemForm">
                     <div class="modal-body">
-                            <div class="form-group">
-                                <label for="name">Item</label>
-                                <input type="text" class="form-control" id="name" name="name" placeholder="iPhone X">
-                            </div>
-                            <div class="form-group">
-                                <label for="price">Price (ETH)</label>
-                                <input type="number" class="form-control" id="price" name="price" placeholder="1" pattern="[0-9]+([\.,][0-9]+)?" step="0.01">
-                            </div>
-                            <div class="form-group">
-                                <label for="description">Description</label>
-                                <textarea type="text" class="form-control vresize" id="description" name="description" placeholder="Very little use..." maxlength="255"></textarea>
-                            </div>
+                        <div class="form-group">
+                            <label for="name">Item</label>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="iPhone X" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Price (ETH)</label>
+                            <input type="number" class="form-control" id="price" name="price" placeholder="0" pattern="[0-9]+([\.,][0-9]+)?" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea type="text" class="form-control vresize" id="description" name="description" placeholder="Very little use..." maxlength="255" required></textarea>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -91,10 +100,6 @@
             </div>
         </div>
     </div>
-
-
-
-
 
     <script src="./app.js"></script>
 </body>
