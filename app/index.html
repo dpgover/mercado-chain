@@ -53,8 +53,12 @@
                     <ul class="list-unstyled mt-3 mb-4">
                         <li class="item-description"></li>
                         <li><strong>Sold by</strong> <span class="item-seller"></span></li>
+                        <li class="item-buyer-li"><strong>Bought by</strong> <span class="item-buyer"></span></li>
                     </ul>
-                    <button type="button" class="btn btn-lg btn-block btn-outline-primary">Buy</button>
+                    <form class="buy-item-form">
+                        <input type="hidden" name="itemId" value="" />
+                        <button type="submit" class="btn btn-lg btn-block btn-outline-primary btn-buy-item">Buy</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -81,15 +85,15 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="name">Item</label>
-                            <input type="text" class="form-control" id="name" name="name" placeholder="iPhone X" required>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="iPhone X" value="iPhone X" required>
                         </div>
                         <div class="form-group">
                             <label for="price">Price (ETH)</label>
-                            <input type="number" class="form-control" id="price" name="price" placeholder="0" pattern="[0-9]+([\.,][0-9]+)?" step="0.01" min="0.01" required>
+                            <input type="number" class="form-control" id="price" name="price" placeholder="0" value="5" pattern="[0-9]+([\.,][0-9]+)?" step="0.01" min="0.01" required>
                         </div>
                         <div class="form-group">
                             <label for="description">Description</label>
-                            <textarea type="text" class="form-control vresize" id="description" name="description" placeholder="Very little use..." maxlength="255" required></textarea>
+                            <textarea type="text" class="form-control vresize" id="description" name="description" placeholder="Very little use..." maxlength="255" required>Very little use...</textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
