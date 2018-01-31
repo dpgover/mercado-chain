@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "eslint ./",
     "build": "webpack",
-    "dev": "webpack-dev-server"
+    "dev": "node server.js"
   },
   "author": "Dario Govergun",
   "license": "MIT",
