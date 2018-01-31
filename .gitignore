@@ -3,4 +3,3 @@ node_modules
 yarn-error.log
 geth/geth/*
 geth/keystore/*
-build/contracts/*
