@@ -71,6 +71,10 @@ contract MercadoChain {
     }
 
     function listItemsForSaleIds() public view returns (uint[]) {
+        if (itemsCounter == 0) {
+            return new uint[](0);
+        }
+
         uint[] memory ids = new uint[](itemsCounter);
         uint itemsForSaleCounter = 0;
 

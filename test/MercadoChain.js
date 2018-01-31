@@ -26,9 +26,17 @@ contract('MercadoChain (Happy Path)', (accounts) => {
   it(
     'Should be initialized with no contracts',
     () => MercadoChain.deployed()
-      .then(instance => instance.countItems())
+      .then((instance) => {
+        mercadoChainInstance = instance;
+        return mercadoChainInstance.countItems();
+      })
       .then((quantity) => {
         assert.equal(quantity.toNumber(), 0, 'Number of items must be zero');
+
+        return mercadoChainInstance.listItemsForSaleIds();
+      })
+      .then((data) => {
+        assert.equal(data.length, 0, 'Items for sale must be empty');
       }),
   );
 

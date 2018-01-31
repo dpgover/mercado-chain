@@ -20,41 +20,113 @@ const formAsObject = (form) => {
   return data;
 };
 
-const addItemContainer = (address, seller, buyer, name, description, price) => {
+const renderAccountInfo = (address, balance) => {
+  $('#account').html(address ? `${address.substring(0, 10)}...` : '');
+  $('#accountBalance').html(balance);
+};
+
+const renderItems = (user, items) => {
   const itemList = $('#itemList');
-  const itemTemplate = $('#itemTemplate');
   itemList.empty();
 
-  itemTemplate.find('input[name=itemId]').val(address);
-  itemTemplate.find('.item-name').html(name);
-  itemTemplate.find('.item-description').html(description);
-  itemTemplate.find('.item-price').html(web3.fromWei(price, 'ether').toNumber());
-  itemTemplate.find('.item-seller').html(seller);
+  const itemTemplate = $('#itemTemplate');
+  items.forEach((item) => {
+    const itemData = itemTemplate.clone();
 
-  itemTemplate.find('.item-buyer-li').hide();
-  if (buyer != null) {
-    itemTemplate.find('.item-buyer').html(buyer);
-    itemTemplate.find('.item-buyer-li').show();
-    itemTemplate.find('button').prop('disabled', true);
-    itemTemplate.find('button').html('Bought!');
-  }
+    itemData.find('input[name=itemId]').val(item.id);
+    itemData.find('.item-name').html(item.name);
+    itemData.find('.item-description').html(item.description);
+    itemData.find('.item-price').html(item.price);
+    itemData.find('.item-seller').html(item.seller === user ? 'You' : item.seller);
 
-  itemList.append(itemTemplate.html());
+    const form = itemData.find('form');
+    if (item.seller === user) {
+      form.find('.btn-buy-item').remove();
+      form.remove();
+    }
 
-  itemList
-    .find('.buy-item-form')
+    itemList.append(itemData.html());
+  });
+
+  itemList.find('.buy-item-form')
     .on('submit', (e) => {
       e.preventDefault();
 
       app.buyItem(formAsObject(e.target));
-
-      return false;
     });
 };
 
+const addSaleEventToFeed = (event) => {
+  const eventData = event.args;
+  const feed = $('#eventsFeed');
+
+  feed.find('ul').prepend(`
+    <li class="list-group-item">
+      <div class="text-center"><strong>NEW ITEM FOR SALE</strong></div>
+      <div>
+          <table class="table table-bordered">
+              <thead>
+                  <tr>
+                      <th width="70%">ITEM</th>
+                      <th  width="30%" class="text-right">PRICE</th>
+                  </tr>                
+              </thead>
+              <tbody>
+                  <tr>
+                      <td width="70%">${eventData._name}</td>
+                      <td width="30%" class="text-right">ETH ${web3.fromWei(eventData._price, 'ether')}</td>
+                  </tr>
+              </tbody>
+          </table>
+      </div>
+      <div><strong>SELLER</strong><br/>${eventData._seller}</div>
+      <div><strong>TRANSACTION</strong><br/>${event.transactionHash}</div>
+    </li>
+  `);
+};
+
+const addBuyEventToFeed = (event) => {
+  const eventData = event.args;
+  const feed = $('#eventsFeed');
+
+  feed.find('ul').prepend(`
+    <li class="list-group-item">
+      <div class="text-center"><strong>ITEM BOUGHT</strong></div>
+      <div>
+          <table class="table table-bordered">
+              <thead>
+                  <tr>
+                      <th width="70%">ITEM</th>
+                      <th  width="30%" class="text-right">PRICE</th>
+                  </tr>                
+              </thead>
+              <tbody>
+                  <tr>
+                      <td width="70%">${eventData._name}</td>
+                      <td width="30%" class="text-right">ETH ${web3.fromWei(eventData._price, 'ether')}</td>
+                  </tr>
+              </tbody>
+          </table>
+      </div>
+      <div><strong>SELLER</strong><br/>${eventData._seller}</div>
+      <div><strong>BUYER</strong><br/>${eventData._buyer}</div>
+      <div><strong>TRANSACTION</strong><br/>${event.transactionHash}</div>
+    </li>
+  `);
+};
+
+const clearSellModal = () => {
+  $('#sellItem').modal('hide');
+  $('#sellItemForm').get(0).reset();
+};
+
 class App {
-  constructor() {
+  constructor(compiledContract) {
+    this.loading = false;
+
+    this.compiledContract = compiledContract;
     this.contracts = {};
+
     this.account = {
       address: null,
       balance: null,
@@ -76,64 +148,64 @@ class App {
             this.account.balance = web3.fromWei(balance, 'ether').toNumber();
           }
 
-          this.displayAccountInfo();
+          renderAccountInfo(this.account.address, this.account.balance);
         });
       }
     });
   }
 
-  displayAccountInfo() {
-    const address = this.account.address ? this.account.address : '';
-
-    $('#account').html(`${address.substring(0, 10)}...`);
-    $('#accountBalance').html(this.account.balance);
-  }
-
   initContract() {
-    $.getJSON('/build/contracts/MercadoChain.json', (artifact) => {
+    $.getJSON(this.compiledContract, (artifact) => {
       this.contracts.MercadoChain = new Contract(artifact);
       this.contracts.MercadoChain.setProvider(web3.currentProvider);
 
       this.reloadItems();
-      this.eventListener();
+      this.eventListeners();
     });
   }
 
   reloadItems() {
+    if (this.loading) {
+      return;
+    }
+    this.loading = true;
+
     this.getAccountInfo();
 
     let contract;
     this.contracts.MercadoChain.deployed()
       .then((instance) => {
         contract = instance;
-        return contract.getItem.call();
+        return contract.listItemsForSaleIds();
       })
-      .then((item) => {
-        if (item[0] != 0x0) {
-          this.displayItem(contract, item);
-        }
+      .then((itemsIds) => {
+        const itemsForSale = [];
+        const itemsPromises = [];
+        itemsIds.forEach((itemId) => {
+          itemsPromises.push(contract.items(itemId));
+        });
+
+        Promise.all(itemsPromises)
+          .then((items) => {
+            items.forEach((item) => {
+              itemsForSale.push({
+                id: item[0].toNumber(),
+                seller: item[1],
+                buyer: item[2],
+                name: item[3],
+                description: item[4],
+                price: web3.fromWei(item[5].toNumber(), 'ether'),
+              });
+            });
+
+            renderItems(this.account.address, itemsForSale);
+
+            this.loading = false;
+          });
       })
       .catch((err) => {
         console.error(err);
       });
-  }
-
-  displayItem(contract, item) {
-    let seller = item[0];
-    if (seller === this.account.address) {
-      seller = 'You';
-    }
-
-    let buyer = item[1];
-    if (buyer != 0x0) {
-      if (buyer === this.account.address) {
-        buyer = 'You';
-      }
-    } else {
-      buyer = null;
-    }
-
-    addItemContainer(contract.address, seller, buyer, item[2], item[3], item[4]);
   }
 
   sellItem(itemData) {
@@ -141,38 +213,37 @@ class App {
       .then(instance => instance.sellItem(
         itemData.name,
         itemData.description,
-        web3.toWei(itemData.price, 'ether'),
+        web3.toWei(parseFloat(itemData.price), 'ether'),
         {
           from: this.account.address.replace('0x', ''),
           gas: 500000,
         },
       ))
       .then(() => {
-        $('#sellItem').modal('hide');
-        $('#sellItemForm').get(0).reset();
+        clearSellModal();
       })
       .catch((err) => {
         console.error(err);
       });
   }
 
-  buyItem(address) {
+  buyItem(formData) {
+    const id = formData.itemId;
     let contract;
 
     this.contracts.MercadoChain.deployed()
       .then((instance) => {
         contract = instance;
-        return contract.getItem.call();
+        return contract.items(id);
       })
-      .then((itemData) => {
-        console.log(itemData);
-
-        return contract.buyItem({
+      .then(itemData => contract.buyItem(
+        itemData[0].toNumber(),
+        {
           from: this.account.address.replace('0x', ''),
-          value: itemData[4],
+          value: itemData[5],
           gas: 500000,
-        });
-      })
+        },
+      ))
       .then(() => {
         this.reloadItems();
       })
@@ -181,7 +252,7 @@ class App {
       });
   }
 
-  eventListener() {
+  eventListeners() {
     this.contracts.MercadoChain.deployed()
       .then((instance) => {
         instance.itemPutForSale(
@@ -192,7 +263,7 @@ class App {
           },
         ).watch((error, event) => {
           if (!error) {
-            this.addSaleEventToFeed(event);
+            addSaleEventToFeed(event);
           } else {
             console.log(error);
           }
@@ -210,7 +281,7 @@ class App {
           },
         ).watch((error, event) => {
           if (!error) {
-            this.addBuyEventToFeed(event);
+            addBuyEventToFeed(event);
           } else {
             console.log(error);
           }
@@ -218,64 +289,9 @@ class App {
         });
       });
   }
-
-  addSaleEventToFeed(event) {
-    const eventData = event.args;
-    const feed = $('#eventsFeed');
-
-    feed.find('ul').prepend(`<li class="list-group-item">
-        <div class="text-center"><strong>NEW ITEM FOR SALE</strong></div>
-        <div>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th width="70%">ITEM</th>
-                        <th  width="30%" class="text-right">PRICE</th>
-                    </tr>                
-                </thead>
-                <tbody>
-                    <tr>
-                        <td width="70%">${eventData._name}</td>
-                        <td width="30%" class="text-right">ETH ${web3.fromWei(eventData._price, 'ether')}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div><strong>SELLER</strong><br/>${eventData._seller}</div>
-        <div><strong>TRANSACTION</strong><br/>${event.transactionHash}</div>
-    </li>`);
-  }
-
-  addBuyEventToFeed(event) {
-    const eventData = event.args;
-    const feed = $('#eventsFeed');
-
-    feed.find('ul').prepend(`<li class="list-group-item">
-        <div class="text-center"><strong>ITEM BOUGHT</strong></div>
-        <div>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th width="70%">ITEM</th>
-                        <th  width="30%" class="text-right">PRICE</th>
-                    </tr>                
-                </thead>
-                <tbody>
-                    <tr>
-                        <td width="70%">${eventData._name}</td>
-                        <td width="30%" class="text-right">ETH ${web3.fromWei(eventData._price, 'ether')}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div><strong>SELLER</strong><br/>${eventData._seller}</div>
-        <div><strong>BUYER</strong><br/>${eventData._buyer}</div>
-        <div><strong>TRANSACTION</strong><br/>${event.transactionHash}</div>
-    </li>`);
-  }
 }
 
-const app = new App();
+const app = new App('/contracts/MercadoChain.json');
 
 window.addEventListener('load', () => {
   $('#eventsList').popover({

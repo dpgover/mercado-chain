@@ -3,7 +3,7 @@ version: '3'
 services:
   app:
     build: ./docker/app
-    command: yarn run dev
+    command: node dummy-server.js
     working_dir: /usr/src/app
     volumes:
      - .:/usr/src/app
