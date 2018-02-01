@@ -3,8 +3,9 @@
 # Running the containers
 - `docker-compose up -d app ganache`
 - `docker-compose up -d app geth`
+- `docker-compose up -d app rinkeby`
 
-**DO NOT start the GETH and the GANACHE container at the same time.**
+**ONLY START 1 of the node containers at the same time**
 
 ## APP container
 - `yarn run dev` to start the frontend server
@@ -42,3 +43,13 @@ Use `./mining-nodes/start-ganache-node.sh` to start the on-memory test node
 
 - 3 accounts will be created by default, with password `darodaro`
 - `geth attach http://localhost:8545` to get a console
+
+## RINKEBY container:
+- The node starts automatically when the container is up
+- The first time the node runs, it will synchronize with the network. It will take a while.
+  
+  *Check the logs (`docker logs -f <container_name>`) and wait until it finishes*
+
+- 3 accounts will be created by default, with password `darodaro`
+- `geth attach http://localhost:8545` to get a console
+- In the geth console, you can execute `eth.syncing` to view the progress of the syncing process
