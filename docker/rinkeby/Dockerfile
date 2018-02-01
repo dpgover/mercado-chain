@@ -41,17 +41,17 @@ CMD geth --datadir "." init genesis.json && \
     geth account new --datadir "." --password "password.sec" && \
     geth account new --datadir "." --password "password.sec" && \
     geth \
-    --networkid 4224 \
-    --mine \
+    --networkid 4 \
     --datadir "." \
-    --port "30303" \
+    --rpc \
     --rpcapi "db,eth,web3,personal,net" \
     --rpccorsdomain "*" \
     --identity "mercadochain" \
-    --rpc \
     --rpcaddr "0.0.0.0" \
     --rpcport "8545" \
-    --nodiscover \
     --nat "any" \
-    --unlock 0 \
-    --password "password.sec"
+    --fast \
+    --cache=512 \
+    --ethstats='mercadochain:Respect my authoritah!@stats.rinkeby.io' \
+    --bootnodes="enode://a24ac7c5484ef4ed0c5eb2d36620ba4e4aa13b8c84684e1b4aab0cebea2ae45cb4d375b77eab56516d34bfbd3c1a833fc51296ff084b770b94fb9028c4d25ccf@52.169.42.101:30303"
+

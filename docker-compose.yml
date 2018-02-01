@@ -24,22 +24,35 @@ services:
   geth:
     build: ./docker/geth
     volumes:
-      - ./geth/geth:/geth
-      - ./geth/keystore:/keystore
+     - ./mining-nodes/geth/geth:/geth
+     - ./mining-nodes/geth/keystore:/keystore
     ports:
-        - "8545:8545"
-        - "8546:8546"
-        - "30303:30303"
-        - "30303:30303/udp"
+     - "8545:8545"
+     - "8546:8546"
+     - "30303:30303"
+     - "30303:30303/udp"
     environment:
-      GOROOTBASE: /usr/local
-      GOROOT: /usr/local/go
-      GOPATH: /go
+     GOROOTBASE: /usr/local
+     GOROOT: /usr/local/go
+     GOPATH: /go
     networks:
-      - blockchain
-volumes:
-  geth:
-    driver: "local"
+     - blockchain
+  rinkeby:
+    build: ./docker/rinkeby
+    volumes:
+     - ./mining-nodes/rinkeby/geth:/geth
+     - ./mining-nodes/rinkeby/keystore:/keystore
+    ports:
+     - "8545:8545"
+     - "8546:8546"
+     - "30303:30303"
+     - "30303:30303/udp"
+    environment:
+     GOROOTBASE: /usr/local
+     GOROOT: /usr/local/go
+     GOPATH: /go
+    networks:
+     - blockchain
 networks:
   blockchain:
     driver: "bridge"
