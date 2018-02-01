@@ -182,7 +182,7 @@ class App {
         const itemsForSale = [];
         const itemsPromises = [];
         itemsIds.forEach((itemId) => {
-          itemsPromises.push(contract.items(itemId));
+          itemsPromises.push(contract.items(itemId.toNumber()));
         });
 
         Promise.all(itemsPromises)

@@ -1,6 +1,9 @@
 pragma solidity ^0.4.18;
 
-contract MercadoChain {
+import "./Owned.sol";
+
+contract MercadoChain is Owned {
+    // State variables
     struct Item {
         uint id;
         address seller;
@@ -13,7 +16,7 @@ contract MercadoChain {
     mapping(uint => Item) public items;
     uint itemsCounter = 0;
 
-    //Events
+    // Events
     event itemPutForSale(
         uint indexed _id,
         address indexed _seller,
@@ -29,6 +32,7 @@ contract MercadoChain {
         uint256 _price
     );
 
+    // Functions
     function sellItem(string _name, string _description, uint256 _price) public {
         itemsCounter++;
 
@@ -44,26 +48,25 @@ contract MercadoChain {
         itemPutForSale(itemsCounter, msg.sender, _name, _price);
     }
 
-    function buyItem(uint _id) payable public {
-        // Check there's an item for sale
-        require(itemsCounter > 0);
-        // Check that the item exists
-        require(_id > 0 && _id <= itemsCounter);
-
+    function buyItem(uint _id) public payable onlyIfItem(_id) {
         // Get the article
         Item storage item = items[_id];
 
+        validateBuyTransaction(item);
+
+        item.buyer = msg.sender;
+        item.seller.transfer(msg.value);
+
+        itemBought(item.id, item.seller, msg.sender, item.name, msg.value);
+    }
+
+    function validateBuyTransaction(Item item) internal view {
         // Check the item is not yet sold
         require(item.buyer == 0x0);
         // Check the buyer is not the seller
         require(msg.sender != item.seller);
         // Check the payment is the right amount
         require(msg.value == item.price);
-
-        item.buyer = msg.sender;
-        item.seller.transfer(msg.value);
-
-        itemBought(_id, item.seller, msg.sender, item.name, msg.value);
     }
 
     function countItems() public view returns (uint) {
@@ -91,5 +94,20 @@ contract MercadoChain {
         }
 
         return (itemsForSale);
+    }
+
+    // Self-Destruct
+    function destroy() public onlyOwner() {
+        selfdestruct(owner);
+    }
+
+    // Modifiers
+    modifier onlyIfItem(uint _id) {
+        // Check there is at least one item for sale
+        require(itemsCounter > 0);
+        // Check that the item id is in range
+        require(_id > 0 && _id <= itemsCounter);
+
+        _;
     }
 }
