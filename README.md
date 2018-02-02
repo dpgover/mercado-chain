@@ -33,7 +33,8 @@ Here are some commands to use with the contract
 - `app.buyItem(1, {from: web3.eth.accounts[1], value: web3.toWei(5, 'ether')});`
 
 ## GANACHE container 
-Use `./mining-nodes/start-ganache-node.sh` to start the on-memory test node 
+- The node starts automatically when the container is up
+- It will create 3 accounts with 100ETH each.  
 
 ## GETH container:
 - The node starts automatically when the container is up
@@ -41,7 +42,7 @@ Use `./mining-nodes/start-ganache-node.sh` to start the on-memory test node
   
   *Check for "Generating DAG in progress" in the logs (`docker logs -f <container_name>`) and wait until it reaches 100% before using the node*
 
-- 3 accounts will be created by default, with password `darodaro`
+- 3 accounts will be created by default, with password `pass1234`
 - `geth attach http://localhost:8545` to get a console
 
 ## RINKEBY container:
@@ -50,6 +51,6 @@ Use `./mining-nodes/start-ganache-node.sh` to start the on-memory test node
   
   *Check the logs (`docker logs -f <container_name>`) and wait until it finishes*
 
-- 3 accounts will be created by default, with password `darodaro`
+- 3 accounts will be created by default, with password `M3rc4d0Ch41n88`
 - `geth attach http://localhost:8545` to get a console
 - In the geth console, you can execute `eth.syncing` to view the progress of the syncing process
